@@ -5,89 +5,131 @@
   <title>AI Energy Consumption Visualization</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <link rel="stylesheet" href="main.css" />
+  <style>
+    body {
+      background: #f4f4f4;
+      font-family: Georgia, "Times New Roman", Times, serif;
+      margin: 0;
+      padding: 0;
+    }
+    #centered-article {
+      max-width: 760px;
+      margin: 36px auto 36px auto;
+      background: #fff;
+      box-shadow: 0 6px 24px 2px rgba(0,0,0,0.06);
+      border-radius: 8px;
+      padding: 40px 32px;
+    }
+    h1 {
+      font-size: 2.1em;
+      margin: 0 0 10px 0;
+      text-align: center;
+      line-height: 1.15;
+      font-family: 'Merriweather', Georgia, serif;
+    }
+    .byline {
+      text-align: center;
+      color: #777;
+      font-size: 1.04em;
+      margin-bottom: 30px;
+    }
+    #intro h2 {
+      font-size: 1.27em;
+      margin-top: 2.2em;
+    }
+    #bar-chart, #map-chart-container {
+      display: flex;
+      justify-content: center;
+      margin: 28px 0 12px 0;
+    }
+    #map-toggle {
+      right: 30px; top: 20px;
+    }
+    @media (max-width: 800px) {
+      #centered-article { padding: 16px 7px; }
+      h1 { font-size: 1.4em; }
+    }
+  </style>
 </head>
 <body>
-  <h1>How Much Energy Do AI Tasks Use? A Visual Guide to AI’s Environmental Footprint</h1>
-  <p class="byline"><strong>By Lucia de la Torre</strong> &mdash; Published on 14 August 2025</p>
+  <main id="centered-article">
+    <h1>How Much Energy Do AI Tasks Use? A Visual Guide to AI’s Environmental Footprint</h1>
+    <p class="byline"><strong>By Lucia de la Torre</strong> &mdash; Published on 14 August 2025</p>
+    <div id="intro">
+      <p>
+        Artificial intelligence is transforming industries, reshaping economies, and accelerating innovation—but this progress comes with a largely invisible cost: <strong>energy consumption</strong>. As AI models grow ever larger and more complex, they require massive computational resources, often powered by data centers that consume tremendous amounts of electricity. The environmental impact of this energy use varies, depending not only on the underlying technology, but also the region of deployment and the sources of electricity in use.
+      </p>
 
-  <div id="intro" style="max-width: 750px;">
-    <p>
-      Artificial intelligence is transforming industries, reshaping economies, and accelerating innovation—but this progress comes with a largely invisible cost: <strong>energy consumption</strong>. As AI models grow ever larger and more complex, they require massive computational resources, often powered by data centers that consume tremendous amounts of electricity. The environmental impact of this energy use varies, depending not only on the underlying technology, but also the region of deployment and the sources of electricity in use.
-    </p>
+      <p>
+        <strong>Not all AI tasks consume the same amounts of energy.</strong> Some, like image generation used in creative or design applications, are far more energy-intensive than simpler tasks such as binary text classification or basic speech recognition. Behind every user query, search, or generated image, there’s an unseen but measurable expenditure of watt-hours that, when scaled across billions of uses, adds up to a significant global footprint.
+      </p>
 
-    <p>
-      <strong>Not all AI tasks consume the same amounts of energy.</strong> Some, like image generation used in creative or design applications, are far more energy-intensive than simpler tasks such as binary text classification or basic speech recognition. Behind every user query, search, or generated image, there’s an unseen but measurable expenditure of watt-hours that, when scaled across billions of uses, adds up to a significant global footprint.
-    </p>
+      <p>
+        To bring clarity to these hidden costs, this project leverages benchmarking data from the
+        <a href="https://huggingface.co/AIEnergyScore" target="_blank">Hugging Face AI Energy Score initiative</a>.
+        The AI Energy Score systematically tests hundreds of AI models across ten of the most widely used tasks. By measuring GPU energy use in a standardized setting and pairing these numbers with robust environmental impact factors, the dataset enables developers, companies, and policymakers to make informed decisions about the sustainability of their AI systems and the broader implications for energy infrastructure worldwide.
+      </p>
 
-    <p>
-      To bring clarity to these hidden costs, this project leverages benchmarking data from the
-      <a href="https://huggingface.co/AIEnergyScore" target="_blank">Hugging Face AI Energy Score initiative</a>.
-      The AI Energy Score systematically tests hundreds of AI models across ten of the most widely used tasks. By measuring GPU energy use in a standardized setting and pairing these numbers with robust environmental impact factors, the dataset enables developers, companies, and policymakers to make informed decisions about the sustainability of their AI systems and the broader implications for energy infrastructure worldwide.
-    </p>
+      <h2>Understanding the Data: How Much Energy Does AI Use?</h2>
+      <p>
+        The first visualization below examines average energy consumption per completed AI task. Ten tasks—ranging from text and speech to vision and generative AI—were tested using representative datasets and evaluated on consistent hardware (NVIDIA H100 GPUs). The findings reveal sizable differences: <strong>image generation</strong> emerges as the most energy-hungry due to its reliance on complex models such as Stable Diffusion, while routine text classification tasks are among the most efficient and least resource-intensive. These gaps highlight the importance of choosing the right tool for the job and the opportunity for efficiency gains through optimization.
+      </p>
 
-    <h2>Understanding the Data: How Much Energy Does AI Use?</h2>
-    <p>
-      The first visualization below examines average energy consumption per completed AI task. Ten tasks—ranging from text and speech to vision and generative AI—were tested using representative datasets and evaluated on consistent hardware (NVIDIA H100 GPUs). The findings reveal sizable differences: <strong>image generation</strong> emerges as the most energy-hungry due to its reliance on complex models such as Stable Diffusion, while routine text classification tasks are among the most efficient and least resource-intensive. These gaps highlight the importance of choosing the right tool for the job and the opportunity for efficiency gains through optimization.
-    </p>
+      <!-- Insert the bar chart graphic here -->
+      <div id="bar-chart"></div>
 
-    <!-- Insert the bar chart graphic here -->
-    <div id="bar-chart"></div>
+      <p>
+        For organizations and individuals deploying AI, understanding these variations is critical. Selecting smaller, specialized models can dramatically reduce operational energy costs and carbon footprint, especially at scale. The bar chart allows viewers to easily compare AI tasks and consider which applications may warrant additional scrutiny from an environmental perspective.
+      </p>
 
-    <p>
-      For organizations and individuals deploying AI, understanding these variations is critical. Selecting smaller, specialized models can dramatically reduce operational energy costs and carbon footprint, especially at scale. The bar chart allows viewers to easily compare AI tasks and consider which applications may warrant additional scrutiny from an environmental perspective.
-    </p>
+      <h2>The Role of Model Design: Efficiency vs. Capability</h2>
+      <p>
+        Comparing efficient and inefficient AI models highlights just how different AI technologies can be. Smaller, optimized models are perfect for everyday uses—like running on smartphones or other simple devices—because they don’t use much energy. In contrast, powerful, high-capacity models are best for complex tasks that need the highest accuracy or creativity, but they consume a lot more power. It’s important to be clear about their energy costs so users and developers can make informed choices.
+      </p>
+      <p>
+        To put these numbers in perspective: running a simple AI model to process text might use just a few watt-hours of electricity—similar to sending a handful of emails (about 0.064 Wh per email), while generating a single image or using a large language model for a big, complex task can require as much energy as putting on a load of laundry in a washing machine (which averages about 0.5–1 kWh).<sup>[1][2]</sup> 
+      </p>
 
-    <h2>The Role of Model Design: Efficiency vs. Capability</h2>
-    <p>
-      Comparing efficient and inefficient AI models highlights just how different AI technologies can be. Smaller, optimized models are perfect for everyday uses—like running on smartphones or other simple devices—because they don’t use much energy. In contrast, powerful, high-capacity models are best for complex tasks that need the highest accuracy or creativity, but they consume a lot more power. It’s important to be clear about their energy costs so users and developers can make informed choices.
-    </p>
-    <p>
-      To put these numbers in perspective: running a simple AI model to process text might use just a few watt-hours of electricity—similar to sending a handful of emails (about 0.064 Wh per email), while generating a single image or using a large language model for a big, complex task can require as much energy as putting on a load of laundry in a washing machine (which averages about 0.5–1 kWh).<sup>[1][2]</sup> 
-    </p>
+      <h2>Regional Differences: How Geography Shapes Environmental Impact</h2>
+      <p>
+        The next visualization offers a global perspective on how electricity generation methods shape the environmental toll of AI. Even with identical computational workloads, the ultimate impact of running an AI model depends on where in the world it takes place.
+      </p>
+      <ul>
+        <li>
+          <strong>Abiotic Depletion Potential (ADPe)</strong>: This metric captures the depletion of non-renewable resources like minerals and metals during electricity generation. The USA, due to a fossil-heavy grid, leads in resource depletion, while France benefits from its nuclear-powered mix, ranking lowest.
+        </li>
+        <li>
+          <strong>Primary Energy Consumption (PE)</strong>: PE measures the total energy required to deliver 1 kWh of usable electricity. China’s reliance on coal means it has the highest PE, reflecting less efficient generation, while France once again stands out as a model of efficiency thanks to nuclear power.
+        </li>
+      </ul>
+      <p>
+        The interactive world map below lets you toggle between these metrics, revealing geographic disparities. For example, running a high-energy AI inference in Shenzhen has a greater resource depletion impact than running the identical task in Paris—even though the energy consumption of the GPU itself is unchanged.
+      </p>
 
-    <h2>Regional Differences: How Geography Shapes Environmental Impact</h2>
-    <p>
-      The next visualization offers a global perspective on how electricity generation methods shape the environmental toll of AI. Even with identical computational workloads, the ultimate impact of running an AI model depends on where in the world it takes place.
-    </p>
-    <ul>
-      <li>
-        <strong>Abiotic Depletion Potential (ADPe)</strong>: This metric captures the depletion of non-renewable resources like minerals and metals during electricity generation. The USA, due to a fossil-heavy grid, leads in resource depletion, while France benefits from its nuclear-powered mix, ranking lowest.
-      </li>
-      <li>
-        <strong>Primary Energy Consumption (PE)</strong>: PE measures the total energy required to deliver 1 kWh of usable electricity. China’s reliance on coal means it has the highest PE, reflecting less efficient generation, while France once again stands out as a model of efficiency thanks to nuclear power.
-      </li>
-    </ul>
-    <p>
-      The interactive world map below lets you toggle between these metrics, revealing geographic disparities. For example, running a high-energy AI inference in Shenzhen has a greater resource depletion impact than running the identical task in Paris—even though the energy consumption of the GPU itself is unchanged.
-    </p>
-
-    <!-- Insert the map visualization here -->
-    <div id="map-chart-container" style="position:relative;">
-      <div id="map-chart"></div>
-      <div id="map-toggle" style="position:absolute; top:20px; right:30px; z-index:2;">
-        <button id="energyBtn" class="active">Energy Consumption</button>
-        <button id="impactBtn">Environmental Impact</button>
+      <!-- Insert the map visualization here -->
+      <div id="map-chart-container" style="position:relative;">
+        <div id="map-chart"></div>
+        <div id="map-toggle" style="position:absolute; top:20px; right:30px; z-index:2;">
+          <button id="energyBtn" class="active">Energy Consumption</button>
+          <button id="impactBtn">Environmental Impact</button>
+        </div>
       </div>
+
+      <h2>What Do These Results Tell Us?</h2>
+      <p>
+        These visualizations emphasize that the environmental impact of AI is complex and multi-layered. The task, the model, and the location all matter. For policymakers, these insights show the importance of regional regulations and incentives to optimize data center siting and investment in low-carbon energy sources. For developers, they highlight the growing necessity of transparency and sustainability as AI continues to scale. And for consumers, while the responsibility lays primarily on policymakers and developers, these visualizations offer a better understanding of the environmental impact of these now ubiquitous technologies.
+      </p>
+      <hr/>
+      <p style="font-size: 0.95em; color: #555;">
+        <strong>Data sources:</strong><br>
+        All AI task and model energy measurements sourced from the <a href="https://huggingface.co/AIEnergyScore" target="_blank">Hugging Face AI Energy Score</a> project. See <a href="https://github.com/lg3394/dcII" target="_blank">project GitHub repo</a> for code and data files.<br>
+        <span>Date Published: Monday, 14 August 2025</span><br>
+        <sup>[1]</sup> Mike Berners-Lee, "How Bad Are Bananas? The Carbon Footprint of Everything" (2020).<br>
+        <sup>[2]</sup> UK Energy Saving Trust; BBC Future, "Why your emails are destroying the planet".
+      </p>
     </div>
-
-    <h2>What Do These Results Tell Us?</h2>
-    <p>
-      These visualizations emphasize that the environmental impact of AI is complex and multi-layered. The task, the model, and the location all matter. For policymakers, these insights show the importance of regional regulations and incentives to optimize data center siting and investment in low-carbon energy sources. For developers, they highlight the growing necessity of transparency and sustainability as AI continues to scale. And for consumers, while the responsibility lays primarily on policymakers and developers, these visualizations offer a better understanding of the environmental impact of these now ubiquitous technologies.
-    </p>
-    <hr/>
-    <p style="font-size: 0.95em; color: #555;">
-      <strong>Data sources:</strong><br>
-      All AI task and model energy measurements sourced from the <a href="https://huggingface.co/AIEnergyScore" target="_blank">Hugging Face AI Energy Score</a> project. See <a href="https://github.com/lg3394/dcII" target="_blank">project GitHub repo</a> for code and data files.<br>
-      <span>Date Published: Monday, 14 August 2025</span><br>
-      <sup>[1]</sup> Mike Berners-Lee, "How Bad Are Bananas? The Carbon Footprint of Everything" (2020).<br>
-      <sup>[2]</sup> UK Energy Saving Trust; BBC Future, "Why your emails are destroying the planet".
-    </p>
-  </div>
-
-  <!-- No duplicate chart divs needed here -->
-
+  </main>
   <script src="bar_chart.js"></script>
   <script src="map_chart.js"></script>
 </body>
 </html>
-
