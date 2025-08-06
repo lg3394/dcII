@@ -47,5 +47,12 @@ Bar chart animates bars in with smooth transitions, orders tasks by consumption,
 
 Map uses a natural Earth projection, colors countries based on selected metric, supports toggling between energy and environmental impact, and includes informative tooltips and labels.
 
+## Next Steps
+- Expand regional data coverage to include additional countries and subregions.
+- Incorporate additional environmental metrics such as carbon emissions or water use if data becomes available.
+- Explore further interactivity—for example, scrollytelling or model-level drilldowns.
+
+If you have questions or would like to discuss the project, please contact me at lg3394@columbia.edu.
+
 Both graphics employ hover interactions and clear labels for enhanced understanding.
 
