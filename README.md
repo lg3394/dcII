@@ -29,9 +29,6 @@ Using D3.js (v7), the project features:
 ## Project Structure:
 Organized with separate JS files (bar_chart.js, map_chart.js), a CSS stylesheet (main.css), data stored in /data/, and a central index.html.
 
-## Hosting:
-Fully static—can be run locally using a simple web server or deployed to GitHub Pages without build steps.
-
 ## Data Source
 The visualized data comes from the Hugging Face AI Energy Score initiative — a transparent, peer-reviewed benchmarking project that quantifies AI model energy efficiency across popular tasks. Key points about these datasets include:
 
