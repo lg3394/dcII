@@ -1,25 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>AI Energy Consumption Visualization</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  <link rel="stylesheet" href="main.css">
+  <link rel="stylesheet" href="main.css" />
 </head>
 <body>
   <h1>How Much Energy Do AI Tasks Use? A Visual Guide to AI’s Environmental Footprint</h1>
+  
   <div id="intro">
-    <!-- Your project writeup goes here -->
+    <!-- Your project write-up and explanation text can go here -->
   </div>
+  
   <h2>Average Energy Consumption by AI Task</h2>
   <div id="bar-chart"></div>
+  
   <h2>Regional Differences in AI’s Environmental Impact</h2>
-<div id="map-chart-container" style="position:relative;">
-  <div id="map-chart"></div>
-  <div id="map-toggle" style="position:absolute; top:20px; right:30px; z-index:2;">
-    <button id="energyBtn" class="active">Energy Consumption</button>
-    <button id="impactBtn">Environmental Impact</button>
+  <div id="map-chart-container" style="position:relative;">
+    <div id="map-chart"></div>
+    <div id="map-toggle" style="position:absolute; top:20px; right:30px; z-index:2;">
+      <button id="energyBtn" class="active">Energy Consumption</button>
+      <button id="impactBtn">Environmental Impact</button>
+    </div>
   </div>
-</div>
+  
+  <!-- Include your JavaScript files at the end for proper loading -->
+  <script src="bar_chart.js"></script>
+  <script src="map_chart.js"></script>
 </body>
 </html>
