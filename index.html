@@ -14,12 +14,12 @@
   <h2>Average Energy Consumption by AI Task</h2>
   <div id="bar-chart"></div>
   <h2>Regional Differences in AI’s Environmental Impact</h2>
-  <div>
-    <button id="showPE">Show PE (MJ/kWh)</button>
-    <button id="showADPe">Show ADPe (kg Sb eq/kWh)</button>
-  </div>
+<div id="map-chart-container" style="position:relative;">
   <div id="map-chart"></div>
-  <script src="bar_chart.js"></script>
-  <script src="map_chart.js"></script>
+  <div id="map-toggle" style="position:absolute; top:20px; right:30px; z-index:2;">
+    <button id="energyBtn" class="active">Energy Consumption</button>
+    <button id="impactBtn">Environmental Impact</button>
+  </div>
+</div>
 </body>
 </html>
