@@ -1,5 +1,4 @@
 const width = 900, height = 450;
-
 const svg = d3.select('#map-chart')
   .append('svg')
   .attr('width', width)
