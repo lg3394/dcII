@@ -1,0 +1,10 @@
+Task,Average_Wh
+Image Generation,0.519
+Text Generation,0.2877
+Question Answering,0.0225
+Automatic Speech Recognition,0.0221
+Summarization,0.0069
+Text Classification,0.0044
+Object Detection,0.0034
+Sentence Similarity,0.0013
+Image Classification,0.001
