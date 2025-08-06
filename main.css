@@ -1,0 +1,39 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+h1, h2 {
+  color: #222;
+}
+
+#bar-chart, #map-chart {
+  margin-top: 20px;
+  background-color: white;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.tooltip {
+  font-size: 14px;
+  pointer-events: none;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.15);
+}
+
+button {
+  margin: 5px 10px 15px 0;
+  padding: 8px 15px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
