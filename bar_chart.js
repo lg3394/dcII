@@ -1,5 +1,4 @@
 // bar_chart.js
-
 const margin = { top: 30, right: 30, bottom: 70, left: 70 },
   width = 700 - margin.left - margin.right,
   height = 400 - margin.top - margin.bottom;
