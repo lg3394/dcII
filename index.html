@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <title>AI Energy Consumption Visualization</title>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
   <link rel="stylesheet" href="main.css" />
   <style>
     body {
@@ -53,7 +52,7 @@
 </head>
 <body>
   <main id="centered-article">
-    <h1>How Much Energy Do AI Tasks Use? A Visual Guide to AI’s Environmental Footprint</h1>
+    <h1>How Much Energy Do AI Tasks Use? A Visual Guide to AI's Environmental Footprint</h1>
     <p class="byline"><strong>By Lucia de la Torre</strong> &mdash; Published on 14 August 2025</p>
     <div id="intro">
       <p>
@@ -61,7 +60,7 @@
       </p>
 
       <p>
-        <strong>Not all AI tasks consume the same amounts of energy.</strong> Some, like image generation used in creative or design applications, are far more energy-intensive than simpler tasks such as binary text classification or basic speech recognition. Behind every user query, search, or generated image, there’s an unseen but measurable expenditure of watt-hours that, when scaled across billions of uses, adds up to a significant global footprint.
+        <strong>Not all AI tasks consume the same amounts of energy.</strong> Some, like image generation used in creative or design applications, are far more energy-intensive than simpler tasks such as binary text classification or basic speech recognition. Behind every user query, search, or generated image, there's an unseen but measurable expenditure of watt-hours that, when scaled across billions of uses, adds up to a significant global footprint.
       </p>
 
       <p>
@@ -84,7 +83,7 @@
 
       <h2>The Role of Model Design: Efficiency vs. Capability</h2>
       <p>
-        Comparing efficient and inefficient AI models highlights just how different AI technologies can be. Smaller, optimized models are perfect for everyday uses – like running on smartphones or other simple devices – because they don’t use much energy. In contrast, powerful, high-capacity models are best for complex tasks that need the highest accuracy or creativity, but they consume a lot more power. It’s important to be clear about their energy costs so users and developers can make informed choices.
+        Comparing efficient and inefficient AI models highlights just how different AI technologies can be. Smaller, optimized models are perfect for everyday uses – like running on smartphones or other simple devices – because they don't use much energy. In contrast, powerful, high-capacity models are best for complex tasks that need the highest accuracy or creativity, but they consume a lot more power. It's important to be clear about their energy costs so users and developers can make informed choices.
       </p>
       <p>
         To put these numbers in perspective: running a simple AI model to process text might use just a few watt-hours of electricity – similar to sending a handful of emails (about 0.064 Wh per email), while generating a single image or using a large language model for a big, complex task can require as much energy as putting on a load of laundry in a washing machine (which averages about 0.5–1 kWh).
@@ -99,7 +98,7 @@
           <strong>Abiotic Depletion Potential (ADPe)</strong>: This metric captures the depletion of non-renewable resources like minerals and metals during electricity generation. The USA, due to a fossil-heavy grid, leads in resource depletion, while France benefits from its nuclear-powered mix, ranking lowest.
         </li>
         <li>
-          <strong>Primary Energy Consumption (PE)</strong>: PE measures the total energy required to deliver 1 kWh of usable electricity. China’s reliance on coal means it has the highest PE, reflecting less efficient generation, while France once again stands out as a model of efficiency thanks to nuclear power.
+          <strong>Primary Energy Consumption (PE)</strong>: PE measures the total energy required to deliver 1 kWh of usable electricity. China's reliance on coal means it has the highest PE, reflecting less efficient generation, while France once again stands out as a model of efficiency thanks to nuclear power.
         </li>
       </ul>
       <p>
@@ -128,6 +127,8 @@
       </p>
     </div>
   </main>
+  
+  <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="bar_chart.js"></script>
   <script src="map_chart.js"></script>
 </body>
