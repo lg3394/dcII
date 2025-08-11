@@ -11,7 +11,7 @@ const svg = d3.select('#map-chart')
 
 // Keep original projection that was working
 const projection = d3.geoRobinson()
-  .scale(140)
+  .scale(100)
   .translate([width / 2, height / 2]);
 
 const path = d3.geoPath().projection(projection);
@@ -106,7 +106,7 @@ Promise.all([
   });
 
   // Fit the projection for nicely centered zoom (keep this from original)
-  projection.fitSize([chartWidth, chartHeight], world);
+   // projection.fitSize([chartWidth, chartHeight], world);
 
   // Draw countries
   svg.selectAll(".country")
