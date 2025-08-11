@@ -76,7 +76,7 @@
     
     const colorScale = d3.scaleLinear()
       .domain([minValue, maxValue])
-      .range(["#ffd4a3", "#cc5500"])  // Light orange to dark orange
+      .range(["#ffcc99", "#ff5500"])  // Light orange to dark orange
     
     // Remove hover color scale - keeping original colors
     
