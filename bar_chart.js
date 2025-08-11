@@ -85,7 +85,7 @@
       .scaleBand()
       .domain(data.map(d => d.shortName))
       .range([0, chartWidth])
-      .padding(0.1)  // Much more padding to make bars narrower and fit all labels
+      .padding(0.25)  // Much more padding to make bars narrower and fit all labels
     
     const yMax = d3.max(data, d => d.Average_Wh)
     const yScale = d3
