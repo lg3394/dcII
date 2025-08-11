@@ -1,6 +1,6 @@
 // map_chart.js - Fixed version keeping original working settings
 const margin = { top: 0, left: 0, right: 0, bottom: 0 };
-const width = 800, height = 450;  // Keep original dimensions
+const width = 7500, height = 450;  // Keep original dimensions
 const chartWidth = width - margin.left - margin.right;
 const chartHeight = height - margin.top - margin.bottom;
 
@@ -11,7 +11,7 @@ const svg = d3.select('#map-chart')
 
 // Keep original projection that was working
 const projection = d3.geoNaturalEarth1()  // Your original working projection
-  .scale(160)  // Slightly smaller for 800px width
+  .scale(140)  // Slightly smaller for 800px width
   .translate([width / 2, height / 2]);
 
 const path = d3.geoPath().projection(projection);
