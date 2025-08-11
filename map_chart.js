@@ -1,85 +1,36 @@
-// map_chart.js - Improved styling and layout
+// map_chart.js - Fixed version without duplicate buttons
 console.log('map_chart.js is loading...');
 
-const containerWidth = Math.min(800, window.innerWidth - 100); // Responsive width
-const containerHeight = Math.min(500, window.innerHeight * 0.7); // Responsive height
+const containerWidth = Math.min(800, window.innerWidth - 100);
+const containerHeight = Math.min(500, window.innerHeight * 0.7);
 const margin = { top: 60, left: 20, right: 20, bottom: 40 };
 const width = containerWidth;
 const height = containerHeight;
 const mapWidth = width - margin.left - margin.right;
 const mapHeight = height - margin.top - margin.bottom;
 
-// Create main container
-const container = d3.select('#map-chart')
+// Clear any existing content and use the existing HTML structure
+const mapContainer = d3.select('#map-chart')
   .style('position', 'relative')
   .style('width', width + 'px')
   .style('height', height + 'px')
   .style('margin', '0 auto');
 
-// Create button container at the top
-const buttonContainer = container
-  .append('div')
-  .style('position', 'absolute')
-  .style('top', '10px')
-  .style('left', '50%')
-  .style('transform', 'translateX(-50%)')
-  .style('z-index', '10')
-  .style('display', 'flex')
-  .style('gap', '8px');
+// Clear existing content
+mapContainer.selectAll('*').remove();
 
-// Style the buttons
-const energyBtn = buttonContainer
-  .append('button')
-  .attr('id', 'energyBtn')
-  .style('padding', '8px 16px')
-  .style('border', '2px solid #2563eb')
-  .style('border-radius', '6px')
-  .style('background', '#2563eb')
-  .style('color', 'white')
-  .style('font-size', '14px')
-  .style('font-weight', '500')
-  .style('cursor', 'pointer')
-  .style('transition', 'all 0.2s ease')
-  .text('Energy Consumption');
-
-const impactBtn = buttonContainer
-  .append('button')
-  .attr('id', 'impactBtn')
-  .style('padding', '8px 16px')
-  .style('border', '2px solid #2563eb')
-  .style('border-radius', '6px')
-  .style('background', 'white')
-  .style('color', '#2563eb')
-  .style('font-size', '14px')
-  .style('font-weight', '500')
-  .style('cursor', 'pointer')
-  .style('transition', 'all 0.2s ease')
-  .text('Environmental Impact');
-
-// Add hover effects
-[energyBtn, impactBtn].forEach(btn => {
-  btn.on('mouseenter', function() {
-    d3.select(this).style('transform', 'translateY(-1px)').style('box-shadow', '0 4px 8px rgba(0,0,0,0.1)');
-  })
-  .on('mouseleave', function() {
-    d3.select(this).style('transform', 'translateY(0)').style('box-shadow', 'none');
-  });
-});
-
-// Create SVG
-const svg = container
+// Create SVG (no separate button container - use HTML buttons)
+const svg = mapContainer
   .append('svg')
   .attr('width', width)
   .attr('height', height)
-  .style('position', 'absolute')
-  .style('top', '0')
-  .style('left', '0');
+  .style('display', 'block');
 
 // Create map group
 const mapGroup = svg.append('g')
   .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-// Better projection for cleaner world view
+// Better projection
 const projection = d3.geoRobinson()
   .scale(120)
   .translate([mapWidth / 2, mapHeight / 2]);
@@ -88,22 +39,30 @@ const path = d3.geoPath().projection(projection);
 
 // Enhanced tooltip
 const tooltip = d3.select("body")
-  .append("div")
-  .attr("class", "map-tooltip")
-  .style("opacity", 0)
-  .style("position", "absolute")
-  .style("pointer-events", "none")
-  .style("background", "rgba(255, 255, 255, 0.95)")
-  .style("border", "1px solid #ddd")
-  .style("padding", "12px")
-  .style("border-radius", "8px")
-  .style("font-size", "13px")
-  .style("font-family", "'Roboto', sans-serif")
-  .style("box-shadow", "0 4px 12px rgba(0,0,0,0.15)")
-  .style("z-index", "1000")
-  .style("max-width", "250px");
+  .select(".map-tooltip");
 
-// Color scales with better ranges
+// Create tooltip if it doesn't exist
+if (tooltip.empty()) {
+  d3.select("body")
+    .append("div")
+    .attr("class", "map-tooltip")
+    .style("opacity", 0)
+    .style("position", "absolute")
+    .style("pointer-events", "none")
+    .style("background", "rgba(255, 255, 255, 0.95)")
+    .style("border", "1px solid #ddd")
+    .style("padding", "12px")
+    .style("border-radius", "8px")
+    .style("font-size", "13px")
+    .style("font-family", "'Roboto', sans-serif")
+    .style("box-shadow", "0 4px 12px rgba(0,0,0,0.15)")
+    .style("z-index", "1000")
+    .style("max-width", "250px");
+}
+
+const mapTooltip = d3.select(".map-tooltip");
+
+// Color scales
 const colorScales = {
   PE: d3.scaleSequential()
     .domain([9, 15])
@@ -116,12 +75,6 @@ const colorScales = {
 let currentMetric = 'PE';
 
 // Country mappings
-const countryMap = {
-  "USA": "United States of America",
-  "China": "China", 
-  "France": "France"
-};
-
 const europeanCountries = [
   "Germany", "Italy", "Spain", "Poland", "Romania", "Netherlands", 
   "Belgium", "Czech Republic", "Greece", "Portugal", "Sweden", 
@@ -133,13 +86,16 @@ const europeanCountries = [
 ];
 
 function updateButtons() {
-  energyBtn
-    .style('background', currentMetric === 'PE' ? '#2563eb' : 'white')
-    .style('color', currentMetric === 'PE' ? 'white' : '#2563eb');
+  // Update the existing HTML buttons
+  const energyBtn = document.getElementById('energyBtn');
+  const impactBtn = document.getElementById('impactBtn');
   
-  impactBtn
-    .style('background', currentMetric === 'ADPe' ? '#2563eb' : 'white')
-    .style('color', currentMetric === 'ADPe' ? 'white' : '#2563eb');
+  if (energyBtn) {
+    energyBtn.className = currentMetric === 'PE' ? 'active' : '';
+  }
+  if (impactBtn) {
+    impactBtn.className = currentMetric === 'ADPe' ? 'active' : '';
+  }
 }
 
 function updateMap(world, dataByCountry) {
@@ -257,6 +213,8 @@ Promise.all([
   d3.csv('data/environmental_impacts_with_both_metrics.csv')
 ]).then(([world, regionData]) => {
   console.log('Data loaded successfully!');
+  console.log('World features:', world.features ? world.features.length : 'No features');
+  console.log('Region data:', regionData);
   
   let dataByCountry = {};
   regionData.forEach(d => {
@@ -269,10 +227,13 @@ Promise.all([
     }
   });
 
+  console.log('Processed data:', dataByCountry);
+
   // Add title
   addTitle();
 
   // Draw countries
+  console.log('Drawing countries...');
   const countries = mapGroup.selectAll(".country")
     .data(world.features)
     .join("path")
@@ -302,7 +263,6 @@ Promise.all([
     .on("mouseover", function(event, d) {
       const countryName = d.properties.name;
       
-      // Highlight country
       d3.select(this)
         .attr("stroke", "#333")
         .attr("stroke-width", 1.5);
@@ -333,13 +293,13 @@ Promise.all([
         tooltipContent += `<div style="color: #999; font-style: italic;">No specific data available</div>`;
       }
       
-      tooltip.transition().duration(200).style("opacity", 1);
-      tooltip.html(tooltipContent)
+      mapTooltip.transition().duration(200).style("opacity", 1);
+      mapTooltip.html(tooltipContent)
         .style("left", (event.pageX + 15) + "px")
         .style("top", (event.pageY - 10) + "px");
     })
     .on("mousemove", function(event) {
-      tooltip
+      mapTooltip
         .style("left", (event.pageX + 15) + "px")
         .style("top", (event.pageY - 10) + "px");
     })
@@ -348,27 +308,39 @@ Promise.all([
         .attr("stroke", "#fff")
         .attr("stroke-width", 0.5);
       
-      tooltip.transition().duration(300).style("opacity", 0);
+      mapTooltip.transition().duration(300).style("opacity", 0);
     });
+
+  console.log('Countries drawn:', countries.size());
 
   // Add legend
   updateLegend(dataByCountry);
 
-  // Button event listeners
-  energyBtn.on('click', () => {
-    currentMetric = 'PE';
-    updateButtons();
-    updateMap(world, dataByCountry);
-  });
+  // Set up event listeners for existing HTML buttons
+  const energyBtn = document.getElementById('energyBtn');
+  const impactBtn = document.getElementById('impactBtn');
   
-  impactBtn.on('click', () => {
-    currentMetric = 'ADPe';
-    updateButtons();
-    updateMap(world, dataByCountry);
-  });
+  if (energyBtn) {
+    energyBtn.addEventListener('click', () => {
+      console.log('Energy button clicked');
+      currentMetric = 'PE';
+      updateButtons();
+      updateMap(world, dataByCountry);
+    });
+  }
+  
+  if (impactBtn) {
+    impactBtn.addEventListener('click', () => {
+      console.log('Impact button clicked');
+      currentMetric = 'ADPe';
+      updateButtons();
+      updateMap(world, dataByCountry);
+    });
+  }
   
   updateButtons();
 
 }).catch(error => {
   console.error('Error loading data:', error);
+  console.error('Error details:', error.message);
 });
