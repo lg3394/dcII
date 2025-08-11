@@ -41,12 +41,58 @@
       justify-content: center;
       margin: 28px 0 12px 0;
     }
-    #map-toggle {
-      right: 30px; top: 20px;
+    
+    /* Improved map container styling */
+    #map-chart-container {
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 28px auto;
     }
+    
+    #map-toggle {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      z-index: 10;
+    }
+    
+    #map-toggle button {
+      padding: 8px 16px;
+      border: 2px solid #2563eb;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: white;
+      color: #2563eb;
+    }
+    
+    #map-toggle button.active {
+      background: #2563eb;
+      color: white;
+    }
+    
+    #map-toggle button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    #map-chart {
+      width: 100%;
+      height: auto;
+    }
+    
     @media (max-width: 800px) {
       #centered-article { padding: 16px 7px; }
       h1 { font-size: 1.4em; }
+      #map-toggle button {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
     }
   </style>
 </head>
@@ -106,12 +152,12 @@
       </p>
 
       <!-- Insert the map visualization here -->
-      <div id="map-chart-container" style="position:relative;">
-        <div id="map-chart"></div>
-        <div id="map-toggle" style="position:absolute; top:20px; right:30px; z-index:2;">
+      <div id="map-chart-container">
+        <div id="map-toggle">
           <button id="energyBtn" class="active">Energy Consumption</button>
           <button id="impactBtn">Environmental Impact</button>
         </div>
+        <div id="map-chart"></div>
       </div>
 
       <h2>What Do These Results Tell Us?</h2>
