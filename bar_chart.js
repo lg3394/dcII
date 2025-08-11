@@ -70,22 +70,45 @@
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`)
     
-    // Create color scale - darkest for highest values
-    const colorScale = d3.scaleSequential()
-      .domain([0, d3.max(data, d => d.Average_Wh)])
-      .interpolator(d3.interpolateOranges)
+    // Create gradient definition
+    const defs = svg.append("defs")
+    const gradient = defs.append("linearGradient")
+      .attr("id", "orangeGradient")
+      .attr("x1", "0%")
+      .attr("y1", "0%")
+      .attr("x2", "0%")
+      .attr("y2", "100%")
     
-    // Create hover color scale - slightly darker
-    const hoverColorScale = d3.scaleSequential()
-      .domain([0, d3.max(data, d => d.Average_Wh)])
-      .interpolator(t => d3.interpolateRgb("#ff6600", "#ff8c00")(t))
+    gradient.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", "#ff8c00")  // Dark orange at top
+    
+    gradient.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", "#ffd700")  // Light orange/gold at bottom
+    
+    // Hover gradient
+    const hoverGradient = defs.append("linearGradient")
+      .attr("id", "orangeHoverGradient")
+      .attr("x1", "0%")
+      .attr("y1", "0%")
+      .attr("x2", "0%")
+      .attr("y2", "100%")
+    
+    hoverGradient.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", "#ff6600")  // Darker orange at top
+    
+    hoverGradient.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", "#ffb347")  // Lighter orange at bottom
     
     // Scales
     const xScale = d3
       .scaleBand()
       .domain(data.map(d => d.shortName))
       .range([0, chartWidth])
-      .padding(0.05)  // Even tighter padding to fit all tasks
+      .padding(0.08)  // Tighter padding to fit all tasks
     
     const yMax = d3.max(data, d => d.Average_Wh)
     const yScale = d3
@@ -159,8 +182,8 @@
       .attr("width", xScale.bandwidth())
       .attr("y", chartHeight)
       .attr("height", 0)
-      .attr("fill", d => colorScale(d.Average_Wh))
-      .attr("stroke", "#cc6600")
+      .attr("fill", "url(#orangeGradient)")
+      .attr("stroke", "#ff8c00")
       .attr("stroke-width", 1)
       .transition()
       .duration(900)
@@ -172,7 +195,7 @@
     svg
       .selectAll("rect")
       .on("mouseover", function (event, d) {
-        d3.select(this).attr("fill", hoverColorScale(d.Average_Wh))
+        d3.select(this).attr("fill", "url(#orangeHoverGradient)")
         tooltip.transition().duration(200).style("opacity", 0.95)
         tooltip
           .html(
@@ -183,8 +206,8 @@
           .style("left", (event.pageX + 15) + "px")
           .style("top", (event.pageY - 15) + "px")
       })
-      .on("mouseout", function (d) {
-        d3.select(this).attr("fill", colorScale(d.Average_Wh))
+      .on("mouseout", function () {
+        d3.select(this).attr("fill", "url(#orangeGradient)")
         tooltip.transition().duration(250).style("opacity", 0)
       })
     
