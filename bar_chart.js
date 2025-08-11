@@ -4,22 +4,63 @@
     .catch(function (error) {
       console.log("Failed with", error)
     })
-
-  const width = 820
-  const height = 450
-
-  const margin = { top: 40, right: 40, bottom: 100, left: 70 }
+  
+  const width = 820  // Same as original
+  const height = 450  // Same as original
+  const margin = { top: 40, right: 40, bottom: 110, left: 70 }  // Just slightly more bottom margin
   const chartWidth = width - margin.left - margin.right
   const chartHeight = height - margin.top - margin.bottom
-
+  
+  // Task name mapping and descriptions
+  const taskInfo = {
+    "Image Generation": {
+      shortName: "Image Gen",
+      description: "Creating new images from text prompts using AI models like DALL-E or Stable Diffusion"
+    },
+    "Text Generation": {
+      shortName: "Text Gen", 
+      description: "Generating written content like articles, stories, or code using language models"
+    },
+    "Question Answering": {
+      shortName: "Q&A",
+      description: "Providing accurate answers to questions based on context or knowledge"
+    },
+    "Automatic Speech Recognition": {
+      shortName: "Speech-to-Text",
+      description: "Converting spoken audio into written text transcription"
+    },
+    "Summarization": {
+      shortName: "Summarization",
+      description: "Creating concise summaries of longer documents or articles"
+    },
+    "Text Classification": {
+      shortName: "Text Class",
+      description: "Categorizing text into predefined groups like spam detection or sentiment analysis"
+    },
+    "Object Detection": {
+      shortName: "Object Detect",
+      description: "Identifying and locating objects within images or video frames"
+    },
+    "Sentence Similarity": {
+      shortName: "Similarity",
+      description: "Measuring how similar two pieces of text are in meaning"
+    },
+    "Image Classification": {
+      shortName: "Image Class",
+      description: "Categorizing images into predefined classes like animals, objects, or scenes"
+    }
+  }
+  
   function visualizeData(data) {
     // DATA FORMATTING
-
-    data.forEach(d => d.Average_Wh = +d.Average_Wh)
+    data.forEach(d => {
+      d.Average_Wh = +d.Average_Wh
+      d.shortName = taskInfo[d.Task]?.shortName || d.Task
+      d.description = taskInfo[d.Task]?.description || "AI task description"
+    })
     data.sort((a, b) => b.Average_Wh - a.Average_Wh)
-
+    
     // CHART
-
     // Create SVG
     const svg = d3
       .select("#bar-chart")
@@ -28,21 +69,54 @@
       .attr("height", height)
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`)
-
+    
+    // Create gradient definition
+    const defs = svg.append("defs")
+    const gradient = defs.append("linearGradient")
+      .attr("id", "orangeGradient")
+      .attr("x1", "0%")
+      .attr("y1", "0%")
+      .attr("x2", "0%")
+      .attr("y2", "100%")
+    
+    gradient.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", "#ff8c00")  // Dark orange at top
+    
+    gradient.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", "#ffd700")  // Light orange/gold at bottom
+    
+    // Hover gradient
+    const hoverGradient = defs.append("linearGradient")
+      .attr("id", "orangeHoverGradient")
+      .attr("x1", "0%")
+      .attr("y1", "0%")
+      .attr("x2", "0%")
+      .attr("y2", "100%")
+    
+    hoverGradient.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", "#ff6600")  // Darker orange at top
+    
+    hoverGradient.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", "#ffb347")  // Lighter orange at bottom
+    
     // Scales
     const xScale = d3
       .scaleBand()
-      .domain(data.map(d => d.Task))
+      .domain(data.map(d => d.shortName))
       .range([0, chartWidth])
-      .padding(0.15)
-
+      .padding(0.08)  // Tighter padding to fit all tasks
+    
     const yMax = d3.max(data, d => d.Average_Wh)
     const yScale = d3
       .scaleLinear()
       .domain([0, yMax * 1.15])
       .range([chartHeight, 0])
       .nice()
-
+    
     // X Axis
     svg
       .append("g")
@@ -52,16 +126,17 @@
       .attr("text-anchor", "end")
       .attr("dx", "-0.8em")
       .attr("dy", "0.15em")
-      .attr("transform", "rotate(-40)")
-      .style("font-size", "14px")
-
+      .attr("transform", "rotate(-50)")  // Steeper rotation to save space
+      .style("font-size", "12px")  // Slightly smaller font
+      .style("font-weight", "500")
+    
     // Y Axis
     svg
       .append("g")
       .call(d3.axisLeft(yScale).ticks(8))
       .selectAll("text")
       .style("font-size", "14px")
-
+    
     // Y axis label
     svg
       .append("text")
@@ -72,7 +147,7 @@
       .attr("text-anchor", "middle")
       .style("font-size", "15px")
       .text("Average Energy (Wh, per task)")
-
+    
     // Chart title
     svg
       .append("text")
@@ -82,58 +157,72 @@
       .style("font-size", "20px")
       .style("font-weight", "bold")
       .text("Average Energy Consumption by AI Task")
-
+    
     // Tooltip div
     const tooltip = d3.select("body").append("div")
       .attr("class", "tooltip")
       .style("opacity", 0)
       .style("position", "absolute")
-
+      .style("background", "rgba(0, 0, 0, 0.8)")
+      .style("color", "white")
+      .style("padding", "12px")
+      .style("border-radius", "6px")
+      .style("font-size", "14px")
+      .style("max-width", "300px")
+      .style("line-height", "1.4")
+      .style("pointer-events", "none")
+      .style("z-index", "1000")
+    
     // Bars with animation
     svg
       .selectAll("rect")
       .data(data)
       .join("rect")
-      .attr("x", d => xScale(d.Task))
+      .attr("x", d => xScale(d.shortName))
       .attr("width", xScale.bandwidth())
       .attr("y", chartHeight)
       .attr("height", 0)
-      .attr("fill", "#ffa500")
+      .attr("fill", "url(#orangeGradient)")
+      .attr("stroke", "#ff8c00")
+      .attr("stroke-width", 1)
       .transition()
       .duration(900)
       .delay((d, i) => i * 100)
       .attr("y", d => yScale(d.Average_Wh))
       .attr("height", d => chartHeight - yScale(d.Average_Wh))
-
+    
     // Interactivity (tooltips)
     svg
       .selectAll("rect")
       .on("mouseover", function (event, d) {
-        d3.select(this).attr("fill", "#f06c00")
-        tooltip.transition().duration(200).style("opacity", 0.94)
+        d3.select(this).attr("fill", "url(#orangeHoverGradient)")
+        tooltip.transition().duration(200).style("opacity", 0.95)
         tooltip
           .html(
-            `<strong>${d.Task}</strong><br>
-            Energy: <b>${d.Average_Wh} Wh</b>`
+            `<strong>${d.Task}</strong><br><br>
+            <em>${d.description}</em><br><br>
+            <strong>Energy:</strong> ${d.Average_Wh} Wh per task`
           )
-          .style("left", (event.pageX + 10) + "px")
-          .style("top", (event.pageY - 28) + "px")
+          .style("left", (event.pageX + 15) + "px")
+          .style("top", (event.pageY - 15) + "px")
       })
       .on("mouseout", function () {
-        d3.select(this).attr("fill", "#ffa500")
+        d3.select(this).attr("fill", "url(#orangeGradient)")
         tooltip.transition().duration(250).style("opacity", 0)
       })
-
+    
+    // Value labels on bars
     svg
       .selectAll(".label")
       .data(data)
       .join("text")
       .attr("class", "label")
-      .attr("x", d => xScale(d.Task) + xScale.bandwidth() / 2)
+      .attr("x", d => xScale(d.shortName) + xScale.bandwidth() / 2)
       .attr("y", d => yScale(d.Average_Wh) - 8)
       .attr("text-anchor", "middle")
       .text(d => d.Average_Wh)
-      .style("font-size", "13px")
+      .style("font-size", "12px")
       .style("fill", "#333")
+      .style("font-weight", "600")
   }
 })()
