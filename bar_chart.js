@@ -78,17 +78,14 @@
       .domain([minValue, maxValue])
       .range(["#ffd4a3", "#cc5500"])  // Light orange to dark orange
     
-    // Create hover color scale (slightly darker)
-    const hoverColorScale = d3.scaleLinear()
-      .domain([minValue, maxValue])
-      .range(["#ffb347", "#b84700"])  // Slightly darker versions
+    // Remove hover color scale - keeping original colors
     
     // Scales
     const xScale = d3
       .scaleBand()
       .domain(data.map(d => d.shortName))
       .range([0, chartWidth])
-      .padding(0.15)  // Increased padding to make bars narrower
+      .padding(0.25)  // Much more padding to make bars narrower and fit all labels
     
     const yMax = d3.max(data, d => d.Average_Wh)
     const yScale = d3
@@ -107,7 +104,7 @@
       .attr("dx", "-0.8em")
       .attr("dy", "0.15em")
       .attr("transform", "rotate(-45)")  // 45 degree rotation for better readability
-      .style("font-size", "11px")  // Smaller font to fit better
+      .style("font-size", "10px")  // Even smaller font to ensure all labels fit
       .style("font-weight", "500")
     
     // Y Axis
@@ -171,11 +168,11 @@
       .attr("y", d => yScale(d.Average_Wh))
       .attr("height", d => chartHeight - yScale(d.Average_Wh))
     
-    // Interactivity (tooltips)
+    // Interactivity (tooltips only - no color changes)
     svg
       .selectAll("rect")
       .on("mouseover", function (event, d) {
-        d3.select(this).attr("fill", hoverColorScale(d.Average_Wh))
+        // Keep original color, only show tooltip
         tooltip.transition().duration(200).style("opacity", 0.95)
         tooltip
           .html(
@@ -187,7 +184,7 @@
           .style("top", (event.pageY - 15) + "px")
       })
       .on("mouseout", function (d) {
-        d3.select(this).attr("fill", colorScale(d.Average_Wh))
+        // No color change, just hide tooltip
         tooltip.transition().duration(250).style("opacity", 0)
       })
     
