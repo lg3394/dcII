@@ -1,4 +1,4 @@
-// map_chart.js - Debug version
+// map_chart.js - Fixed version combining best features
 console.log('map_chart.js is loading...');
 
 // Check if D3 is available
@@ -11,7 +11,6 @@ if (typeof d3 === 'undefined') {
 // Check if the target element exists
 const mapContainer = document.getElementById('map-chart');
 console.log('Map container element:', mapContainer);
-
 if (!mapContainer) {
   console.error('Element with id "map-chart" not found!');
 } else {
@@ -19,7 +18,7 @@ if (!mapContainer) {
 }
 
 const margin = { top: 0, left: 0, right: 0, bottom: 0 };
-const width = 900, height = 450;
+const width = 800, height = 450;
 const chartWidth = width - margin.left - margin.right;
 const chartHeight = height - margin.top - margin.bottom;
 
@@ -31,8 +30,9 @@ const svg = d3.select('#map-chart')
 
 console.log('SVG created:', svg.node());
 
-const projection = d3.geoNaturalEarth1()
-  .scale(180)
+// Use Robinson projection like the working version
+const projection = d3.geoRobinson()
+  .scale(120)
   .translate([width / 2, height / 2]);
 
 const path = d3.geoPath().projection(projection);
@@ -58,9 +58,20 @@ const colorScales = {
 
 let currentMetric = 'PE'; // 'PE' or 'ADPe'
 
+// European countries (for visual highlighting but using Europe EEA data)
+const europeanCountries = [
+  "Germany", "Italy", "Spain", "Poland", "Romania", "Netherlands", 
+  "Belgium", "Czech Republic", "Greece", "Portugal", "Sweden", 
+  "Hungary", "Austria", "Bulgaria", "Serbia", "Switzerland", 
+  "Slovakia", "Denmark", "Finland", "Norway", "Ireland", "Croatia", 
+  "Bosnia and Herzegovina", "Albania", "Slovenia", "Lithuania", 
+  "Latvia", "Estonia", "Moldova", "North Macedonia", "Armenia", 
+  "Luxembourg", "Malta", "Iceland", "Ukraine", "Belarus"
+];
+
 const countryMap = {
   "USA": "United States of America",
-  "China": "China", 
+  "China": "China",
   "France": "France"
   // More mappings if needed
 };
@@ -73,8 +84,16 @@ function updateButtons() {
   console.log('Updating buttons - Energy:', energyBtn, 'Impact:', impactBtn);
   
   if (energyBtn && impactBtn) {
-    energyBtn.classList.toggle('active', currentMetric === 'PE');
-    impactBtn.classList.toggle('active', currentMetric === 'ADPe');
+    // Remove active class from both
+    energyBtn.classList.remove('active');
+    impactBtn.classList.remove('active');
+    
+    // Add active class to current metric button
+    if (currentMetric === 'PE') {
+      energyBtn.classList.add('active');
+    } else {
+      impactBtn.classList.add('active');
+    }
   }
 }
 
@@ -83,97 +102,200 @@ function updateMap(world, dataByCountry) {
   console.log('Updating map colors for metric:', currentMetric);
   svg.selectAll(".country")
     .attr("fill", d => {
-      let ddata = dataByCountry[d.properties.name];
-      if (!ddata) return "#cccccc";
-      return currentMetric === "PE"
-        ? colorScales.PE(+ddata.PE_MJ_per_kWh)
-        : colorScales.ADPe(+ddata.ADPe_kg_Sb_eq_per_kWh);
+      const countryName = d.properties.name;
+      
+      // Check for specific country data first
+      if (dataByCountry[countryName]) {
+        return currentMetric === "PE"
+          ? colorScales.PE(+dataByCountry[countryName].PE_MJ_per_kWh)
+          : colorScales.ADPe(+dataByCountry[countryName].ADPe_kg_Sb_eq_per_kWh);
+      }
+      
+      // European countries (lighter shade using Europe EEA data)
+      if (europeanCountries.includes(countryName) && dataByCountry["Europe (EEA)"]) {
+        const baseColor = currentMetric === "PE"
+          ? colorScales.PE(+dataByCountry["Europe (EEA)"].PE_MJ_per_kWh)
+          : colorScales.ADPe(+dataByCountry["Europe (EEA)"].ADPe_kg_Sb_eq_per_kWh);
+        // Make it lighter to distinguish from specific country data
+        return d3.color(baseColor).brighter(0.5);
+      }
+      
+      // All other countries - light gray
+      return "#e0e0e0";
     });
+}
+
+// Add legend function from working version
+function addLegend(dataByCountry) {
+  svg.select(".legend").remove(); // Remove existing legend
+  
+  const legend = svg.append("g")
+    .attr("class", "legend")
+    .attr("transform", "translate(20, 20)");
+
+  const legendData = [
+    { 
+      label: "Specific Country Data", 
+      color: currentMetric === "PE" ? colorScales.PE(12) : colorScales.ADPe(7e-8) 
+    },
+    { 
+      label: "Europe (EEA) Average", 
+      color: d3.color(currentMetric === "PE" ? colorScales.PE(12.9) : colorScales.ADPe(6.423e-8)).brighter(0.5) 
+    },
+    { 
+      label: "No Data Available", 
+      color: "#e0e0e0" 
+    }
+  ];
+
+  const legendItems = legend.selectAll(".legend-item")
+    .data(legendData)
+    .join("g")
+    .attr("class", "legend-item")
+    .attr("transform", (d, i) => `translate(0, ${i * 20})`);
+
+  legendItems.append("rect")
+    .attr("width", 15)
+    .attr("height", 15)
+    .attr("fill", d => d.color)
+    .attr("stroke", "#333")
+    .attr("stroke-width", 0.5);
+
+  legendItems.append("text")
+    .attr("x", 20)
+    .attr("y", 12)
+    .style("font-size", "12px")
+    .style("fill", "#333")
+    .text(d => d.label);
 }
 
 // Load data and create map
 console.log('Starting to load data...');
-
 Promise.all([
   d3.json('data/world_countries.json'),
   d3.csv('data/environmental_impacts_with_both_metrics.csv')
 ]).then(([world, regionData]) => {
   console.log('Data loaded successfully!');
-  console.log('World data:', world);
+  console.log('World data structure:', world);
+  console.log('World data type:', typeof world);
+  console.log('World data keys:', Object.keys(world || {}));
   console.log('Region data:', regionData);
-  console.log('Number of countries in world data:', world.features ? world.features.length : 'No features');
+  console.log('Number of countries in world data:', world && world.features ? world.features.length : 'No features');
+  
+  // Validate world data structure
+  if (!world) {
+    console.error('World data is null or undefined');
+    return;
+  }
+  
+  if (!world.features || !Array.isArray(world.features)) {
+    console.error('World data does not have features array:', world);
+    return;
+  }
+  
+  if (world.features.length === 0) {
+    console.error('World features array is empty');
+    return;
+  }
+  
+  // Validate CSV data
+  if (!regionData || !Array.isArray(regionData)) {
+    console.error('Region data is not an array:', regionData);
+    return;
+  }
   
   let dataByCountry = {};
   regionData.forEach(d => {
-    let name = countryMap[d.Area_or_Country] || d.Area_or_Country;
-    dataByCountry[name] = d;
-    console.log(`Mapped ${d.Area_or_Country} to ${name}`);
+    if (d.Area_or_Country === "USA") {
+      dataByCountry["United States of America"] = d;
+    } else if (d.Area_or_Country === "Europe (EEA)") {
+      dataByCountry["Europe (EEA)"] = d;
+    } else {
+      dataByCountry[d.Area_or_Country] = d;
+    }
+    console.log(`Mapped ${d.Area_or_Country}`);
   });
-
+  
   console.log('Final dataByCountry:', dataByCountry);
-
-  // Check if we have the topojson structure vs geojson
-  let features;
-  if (world.features) {
-    features = world.features;
-    console.log('Using GeoJSON format');
-  } else if (world.objects) {
-    console.log('Detected TopoJSON format - need to convert');
-    // If you have topojson, you'd need to convert it
-    console.error('TopoJSON detected but conversion not implemented');
-    return;
-  } else {
-    console.error('Unknown data format:', world);
-    return;
-  }
+  console.log('Number of mapped countries:', Object.keys(dataByCountry).length);
 
   // Test a few country names from the geo data
   console.log('Sample country names from geo data:');
-  features.slice(0, 5).forEach(d => {
-    console.log('Country name:', d.properties.name);
+  world.features.slice(0, 10).forEach((d, i) => {
+    console.log(`${i + 1}. "${d.properties.name}"`);
   });
+  
+  // Check what CSV columns we have
+  if (regionData.length > 0) {
+    console.log('CSV columns:', Object.keys(regionData[0]));
+    console.log('First CSV row:', regionData[0]);
+  }
 
-  // Fit the projection for nicely centered zoom
+  // Fit the projection to the world data
   projection.fitSize([chartWidth, chartHeight], world);
 
   // Draw countries
   console.log('Drawing countries...');
   const countries = svg.selectAll(".country")
-    .data(features)
+    .data(world.features)
     .join("path")
     .attr("class", "country")
     .attr("d", path)
     .attr("fill", d => {
-      let ddata = dataByCountry[d.properties.name];
-      if (!ddata) {
-        console.log(`No data for country: ${d.properties.name}`);
-        return "#cccccc";
+      const countryName = d.properties.name;
+      
+      // Specific country data (USA, China, France)
+      if (dataByCountry[countryName]) {
+        console.log(`Found data for ${countryName}:`, dataByCountry[countryName]);
+        return currentMetric === "PE"
+          ? colorScales.PE(+dataByCountry[countryName].PE_MJ_per_kWh)
+          : colorScales.ADPe(+dataByCountry[countryName].ADPe_kg_Sb_eq_per_kWh);
       }
-      console.log(`Found data for ${d.properties.name}:`, ddata);
-      return currentMetric === "PE"
-        ? colorScales.PE(+ddata.PE_MJ_per_kWh)
-        : colorScales.ADPe(+ddata.ADPe_kg_Sb_eq_per_kWh);
+      
+      // European countries (using Europe EEA data, but lighter)
+      if (europeanCountries.includes(countryName) && dataByCountry["Europe (EEA)"]) {
+        const baseColor = currentMetric === "PE"
+          ? colorScales.PE(+dataByCountry["Europe (EEA)"].PE_MJ_per_kWh)
+          : colorScales.ADPe(+dataByCountry["Europe (EEA)"].ADPe_kg_Sb_eq_per_kWh);
+        return d3.color(baseColor).brighter(0.5);
+      }
+      
+      console.log(`No data for country: ${countryName}`);
+      return "#e0e0e0";
     })
     .attr("stroke", "#333")
-    .attr("stroke-width", 0.5)
+    .attr("stroke-width", 0.3)
     .on("mouseover", function(event, d) {
-      let ddata = dataByCountry[d.properties.name];
-      if (ddata) {
-        tooltip.transition().duration(200).style("opacity", 0.9);
-        tooltip.html(
-          `<strong>${d.properties.name}</strong><br>
-          Energy: ${ddata.PE_MJ_per_kWh} MJ/kWh<br>
-          Impact: ${parseFloat(ddata.ADPe_kg_Sb_eq_per_kWh).toExponential(2)} kg Sb eq/kWh`
-        )
+      const countryName = d.properties.name;
+      let tooltipContent = `<strong>${countryName}</strong><br>`;
+      
+      if (dataByCountry[countryName]) {
+        // Specific country data
+        tooltipContent += `Energy: ${dataByCountry[countryName].PE_MJ_per_kWh} MJ/kWh<br>
+                          Impact: ${parseFloat(dataByCountry[countryName].ADPe_kg_Sb_eq_per_kWh).toExponential(2)} kg Sb eq/kWh<br>
+                          <em>Specific country data</em>`;
+      } else if (europeanCountries.includes(countryName) && dataByCountry["Europe (EEA)"]) {
+        // European average
+        tooltipContent += `Energy: ${dataByCountry["Europe (EEA)"].PE_MJ_per_kWh} MJ/kWh<br>
+                          Impact: ${parseFloat(dataByCountry["Europe (EEA)"].ADPe_kg_Sb_eq_per_kWh).toExponential(2)} kg Sb eq/kWh<br>
+                          <em>Europe (EEA) average</em>`;
+      } else {
+        tooltipContent += `<em>No data available</em>`;
+      }
+      
+      tooltip.transition().duration(200).style("opacity", 0.9);
+      tooltip.html(tooltipContent)
         .style("left", (event.pageX + 10) + "px")
         .style("top", (event.pageY - 28) + "px");
-      }
     })
     .on("mouseout", function() {
       tooltip.transition().duration(250).style("opacity", 0);
     });
 
   console.log('Countries drawn:', countries.size());
+
+  // Add legend
+  addLegend(dataByCountry);
 
   // Set up button event listeners
   const energyBtn = document.getElementById('energyBtn');
@@ -185,6 +307,7 @@ Promise.all([
       currentMetric = 'PE';
       updateButtons();
       updateMap(world, dataByCountry);
+      addLegend(dataByCountry);
     });
   }
   
@@ -194,6 +317,7 @@ Promise.all([
       currentMetric = 'ADPe';
       updateButtons();
       updateMap(world, dataByCountry);
+      addLegend(dataByCountry);
     });
   }
   
