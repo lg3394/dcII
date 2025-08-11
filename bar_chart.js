@@ -70,45 +70,25 @@
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`)
     
-    // Create gradient definition
-    const defs = svg.append("defs")
-    const gradient = defs.append("linearGradient")
-      .attr("id", "orangeGradient")
-      .attr("x1", "0%")
-      .attr("y1", "0%")
-      .attr("x2", "0%")
-      .attr("y2", "100%")
+    // Create color scale for value-based gradient
+    const maxValue = d3.max(data, d => d.Average_Wh)
+    const minValue = d3.min(data, d => d.Average_Wh)
     
-    gradient.append("stop")
-      .attr("offset", "0%")
-      .attr("stop-color", "#ff8c00")  // Dark orange at top
+    const colorScale = d3.scaleLinear()
+      .domain([minValue, maxValue])
+      .range(["#ffd4a3", "#cc5500"])  // Light orange to dark orange
     
-    gradient.append("stop")
-      .attr("offset", "100%")
-      .attr("stop-color", "#ffd700")  // Light orange/gold at bottom
-    
-    // Hover gradient
-    const hoverGradient = defs.append("linearGradient")
-      .attr("id", "orangeHoverGradient")
-      .attr("x1", "0%")
-      .attr("y1", "0%")
-      .attr("x2", "0%")
-      .attr("y2", "100%")
-    
-    hoverGradient.append("stop")
-      .attr("offset", "0%")
-      .attr("stop-color", "#ff6600")  // Darker orange at top
-    
-    hoverGradient.append("stop")
-      .attr("offset", "100%")
-      .attr("stop-color", "#ffb347")  // Lighter orange at bottom
+    // Create hover color scale (slightly darker)
+    const hoverColorScale = d3.scaleLinear()
+      .domain([minValue, maxValue])
+      .range(["#ffb347", "#b84700"])  // Slightly darker versions
     
     // Scales
     const xScale = d3
       .scaleBand()
       .domain(data.map(d => d.shortName))
       .range([0, chartWidth])
-      .padding(0.08)  // Tighter padding to fit all tasks
+      .padding(0.15)  // Increased padding to make bars narrower
     
     const yMax = d3.max(data, d => d.Average_Wh)
     const yScale = d3
@@ -126,8 +106,8 @@
       .attr("text-anchor", "end")
       .attr("dx", "-0.8em")
       .attr("dy", "0.15em")
-      .attr("transform", "rotate(-50)")  // Steeper rotation to save space
-      .style("font-size", "12px")  // Slightly smaller font
+      .attr("transform", "rotate(-45)")  // 45 degree rotation for better readability
+      .style("font-size", "11px")  // Smaller font to fit better
       .style("font-weight", "500")
     
     // Y Axis
@@ -173,8 +153,8 @@
       .style("pointer-events", "none")
       .style("z-index", "1000")
     
-    // Bars with animation
-    svg
+    // Bars with animation and value-based colors
+    const bars = svg
       .selectAll("rect")
       .data(data)
       .join("rect")
@@ -182,8 +162,8 @@
       .attr("width", xScale.bandwidth())
       .attr("y", chartHeight)
       .attr("height", 0)
-      .attr("fill", "url(#orangeGradient)")
-      .attr("stroke", "#ff8c00")
+      .attr("fill", d => colorScale(d.Average_Wh))
+      .attr("stroke", d => d3.color(colorScale(d.Average_Wh)).darker(0.3))
       .attr("stroke-width", 1)
       .transition()
       .duration(900)
@@ -195,7 +175,7 @@
     svg
       .selectAll("rect")
       .on("mouseover", function (event, d) {
-        d3.select(this).attr("fill", "url(#orangeHoverGradient)")
+        d3.select(this).attr("fill", hoverColorScale(d.Average_Wh))
         tooltip.transition().duration(200).style("opacity", 0.95)
         tooltip
           .html(
@@ -206,8 +186,8 @@
           .style("left", (event.pageX + 15) + "px")
           .style("top", (event.pageY - 15) + "px")
       })
-      .on("mouseout", function () {
-        d3.select(this).attr("fill", "url(#orangeGradient)")
+      .on("mouseout", function (d) {
+        d3.select(this).attr("fill", colorScale(d.Average_Wh))
         tooltip.transition().duration(250).style("opacity", 0)
       })
     
