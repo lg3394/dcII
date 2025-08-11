@@ -1,23 +1,43 @@
-// map_chart.js - Working version with proper button positioning
+// map_chart.js - Fixed version combining best features
 console.log('map_chart.js is loading...');
+
+// Check if D3 is available
+if (typeof d3 === 'undefined') {
+  console.error('D3 is not loaded!');
+} else {
+  console.log('D3 is available:', d3.version);
+}
+
+// Check if the target element exists
+const mapContainer = document.getElementById('map-chart');
+console.log('Map container element:', mapContainer);
+if (!mapContainer) {
+  console.error('Element with id "map-chart" not found!');
+} else {
+  console.log('Map container found, proceeding...');
+}
 
 const margin = { top: 0, left: 0, right: 0, bottom: 0 };
 const width = 800, height = 450;
 const chartWidth = width - margin.left - margin.right;
 const chartHeight = height - margin.top - margin.bottom;
 
+console.log('Creating SVG...');
 const svg = d3.select('#map-chart')
   .append('svg')
   .attr('width', width)
   .attr('height', height);
 
+console.log('SVG created:', svg.node());
+
+// Use Robinson projection like the working version
 const projection = d3.geoRobinson()
   .scale(120)
   .translate([width / 2, height / 2]);
 
 const path = d3.geoPath().projection(projection);
 
-// Tooltip
+// Tooltip div (HTML overlay)
 const tooltip = d3.select("body")
   .append("div")
   .attr("class", "tooltip")
@@ -36,7 +56,7 @@ const colorScales = {
   ADPe: d3.scaleSequential().domain([4e-8, 1e-7]).interpolator(d3.interpolateReds)
 };
 
-let currentMetric = 'PE';
+let currentMetric = 'PE'; // 'PE' or 'ADPe'
 
 // European countries (for visual highlighting but using Europe EEA data)
 const europeanCountries = [
@@ -49,6 +69,14 @@ const europeanCountries = [
   "Luxembourg", "Malta", "Iceland", "Ukraine", "Belarus"
 ];
 
+const countryMap = {
+  "USA": "United States of America",
+  "China": "China",
+  "France": "France"
+  // More mappings if needed
+};
+
+// Function to update button states
 function updateButtons() {
   const energyBtn = document.getElementById('energyBtn');
   const impactBtn = document.getElementById('impactBtn');
@@ -69,13 +97,14 @@ function updateButtons() {
   }
 }
 
+// Function to update the map colors
 function updateMap(world, dataByCountry) {
   console.log('Updating map colors for metric:', currentMetric);
   svg.selectAll(".country")
     .attr("fill", d => {
       const countryName = d.properties.name;
       
-      // Specific country data
+      // Check for specific country data first
       if (dataByCountry[countryName]) {
         return currentMetric === "PE"
           ? colorScales.PE(+dataByCountry[countryName].PE_MJ_per_kWh)
@@ -96,7 +125,7 @@ function updateMap(world, dataByCountry) {
     });
 }
 
-// Add legend
+// Add legend function from working version
 function addLegend(dataByCountry) {
   svg.select(".legend").remove(); // Remove existing legend
   
@@ -105,9 +134,18 @@ function addLegend(dataByCountry) {
     .attr("transform", "translate(20, 20)");
 
   const legendData = [
-    { label: "Specific Country Data", color: currentMetric === "PE" ? colorScales.PE(12) : colorScales.ADPe(7e-8) },
-    { label: "Europe (EEA) Average", color: d3.color(currentMetric === "PE" ? colorScales.PE(12.9) : colorScales.ADPe(6.423e-8)).brighter(0.5) },
-    { label: "No Data Available", color: "#e0e0e0" }
+    { 
+      label: "Specific Country Data", 
+      color: currentMetric === "PE" ? colorScales.PE(12) : colorScales.ADPe(7e-8) 
+    },
+    { 
+      label: "Europe (EEA) Average", 
+      color: d3.color(currentMetric === "PE" ? colorScales.PE(12.9) : colorScales.ADPe(6.423e-8)).brighter(0.5) 
+    },
+    { 
+      label: "No Data Available", 
+      color: "#e0e0e0" 
+    }
   ];
 
   const legendItems = legend.selectAll(".legend-item")
@@ -132,6 +170,7 @@ function addLegend(dataByCountry) {
 }
 
 // Load data and create map
+console.log('Starting to load data...');
 Promise.all([
   d3.json('data/world_countries.json'),
   d3.csv('data/environmental_impacts_with_both_metrics.csv')
@@ -139,6 +178,7 @@ Promise.all([
   console.log('Data loaded successfully!');
   console.log('World data:', world);
   console.log('Region data:', regionData);
+  console.log('Number of countries in world data:', world.features ? world.features.length : 'No features');
   
   let dataByCountry = {};
   regionData.forEach(d => {
@@ -149,16 +189,18 @@ Promise.all([
     } else {
       dataByCountry[d.Area_or_Country] = d;
     }
+    console.log(`Mapped ${d.Area_or_Country}`);
   });
+  
+  console.log('Final dataByCountry:', dataByCountry);
 
-  console.log('Processed data:', dataByCountry);
-
+  // Check if we have the right data structure
   if (!world.features) {
     console.error('No features found in world data');
     return;
   }
 
-  // Sample country names from geo data
+  // Test a few country names from the geo data
   console.log('Sample country names from geo data:');
   world.features.slice(0, 5).forEach(d => {
     console.log(`- "${d.properties.name}"`);
@@ -176,6 +218,7 @@ Promise.all([
       
       // Specific country data (USA, China, France)
       if (dataByCountry[countryName]) {
+        console.log(`Found data for ${countryName}:`, dataByCountry[countryName]);
         return currentMetric === "PE"
           ? colorScales.PE(+dataByCountry[countryName].PE_MJ_per_kWh)
           : colorScales.ADPe(+dataByCountry[countryName].ADPe_kg_Sb_eq_per_kWh);
@@ -189,6 +232,7 @@ Promise.all([
         return d3.color(baseColor).brighter(0.5);
       }
       
+      console.log(`No data for country: ${countryName}`);
       return "#e0e0e0";
     })
     .attr("stroke", "#333")
@@ -225,7 +269,7 @@ Promise.all([
   // Add legend
   addLegend(dataByCountry);
 
-  // Set up event listeners for existing HTML buttons
+  // Set up button event listeners
   const energyBtn = document.getElementById('energyBtn');
   const impactBtn = document.getElementById('impactBtn');
   
