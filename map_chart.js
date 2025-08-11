@@ -176,9 +176,33 @@ Promise.all([
   d3.csv('data/environmental_impacts_with_both_metrics.csv')
 ]).then(([world, regionData]) => {
   console.log('Data loaded successfully!');
-  console.log('World data:', world);
+  console.log('World data structure:', world);
+  console.log('World data type:', typeof world);
+  console.log('World data keys:', Object.keys(world || {}));
   console.log('Region data:', regionData);
-  console.log('Number of countries in world data:', world.features ? world.features.length : 'No features');
+  console.log('Number of countries in world data:', world && world.features ? world.features.length : 'No features');
+  
+  // Validate world data structure
+  if (!world) {
+    console.error('World data is null or undefined');
+    return;
+  }
+  
+  if (!world.features || !Array.isArray(world.features)) {
+    console.error('World data does not have features array:', world);
+    return;
+  }
+  
+  if (world.features.length === 0) {
+    console.error('World features array is empty');
+    return;
+  }
+  
+  // Validate CSV data
+  if (!regionData || !Array.isArray(regionData)) {
+    console.error('Region data is not an array:', regionData);
+    return;
+  }
   
   let dataByCountry = {};
   regionData.forEach(d => {
@@ -193,18 +217,22 @@ Promise.all([
   });
   
   console.log('Final dataByCountry:', dataByCountry);
-
-  // Check if we have the right data structure
-  if (!world.features) {
-    console.error('No features found in world data');
-    return;
-  }
+  console.log('Number of mapped countries:', Object.keys(dataByCountry).length);
 
   // Test a few country names from the geo data
   console.log('Sample country names from geo data:');
-  world.features.slice(0, 5).forEach(d => {
-    console.log(`- "${d.properties.name}"`);
+  world.features.slice(0, 10).forEach((d, i) => {
+    console.log(`${i + 1}. "${d.properties.name}"`);
   });
+  
+  // Check what CSV columns we have
+  if (regionData.length > 0) {
+    console.log('CSV columns:', Object.keys(regionData[0]));
+    console.log('First CSV row:', regionData[0]);
+  }
+
+  // Fit the projection to the world data
+  projection.fitSize([chartWidth, chartHeight], world);
 
   // Draw countries
   console.log('Drawing countries...');
