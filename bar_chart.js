@@ -5,7 +5,7 @@
       console.log("Failed with", error)
     })
   
-  const width = 820  // Same as original
+  const width = 800  // Same as original
   const height = 450  // Same as original
   const margin = { top: 40, right: 40, bottom: 110, left: 70 }  // Just slightly more bottom margin
   const chartWidth = width - margin.left - margin.right
