@@ -15,11 +15,11 @@
   const taskInfo = {
     "Image Generation": {
       shortName: "Image Gen",
-      description: "Creating new images from text prompts using AI models like DALL-E or Stable Diffusion"
+      description: "Creating new images from text prompts using specific image-generation AI models like DALL-E or Stable Diffusion"
     },
     "Text Generation": {
       shortName: "Text Gen", 
-      description: "Generating written content like articles, stories, or code using language models"
+      description: "Generating written content like articles, stories, or code using language models like ChatGPT or Claude"
     },
     "Question Answering": {
       shortName: "Q&A",
@@ -27,7 +27,7 @@
     },
     "Automatic Speech Recognition": {
       shortName: "Speech-to-Text",
-      description: "Converting spoken audio into written text transcription"
+      description: "Converting spoken audio into written text transcription using models like Whisper (OpenAI), Google Speech-to-Text"
     },
     "Summarization": {
       shortName: "Summarization",
